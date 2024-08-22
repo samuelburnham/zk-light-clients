@@ -28,16 +28,19 @@ jobs:
         id: get-version
         run: |
           RELEASE_BRANCH=${{ github.event.pull_request.base.ref }}
-          TAG_VERSION=$(echo "$RELEASE_BRANCH | cut -d'/' -f 2)
-          PATH=$(echo "$RELEASE_BRANCH" | awk -F'/' '{split($2, arr, "-"); print arr[1]}')
+          TAG_VERSION=$(echo "$RELEASE_BRANCH" | cut -d'/' -f 2)
+          LC_PATH=$(echo "$RELEASE_BRANCH" | awk -F'/' '{split($2, arr, "-"); print arr[1]}')
 
-          if [[ "${{ startsWith(github.event.pull_request.head.ref, 'version-bump') }}" == "true" ]]; then
+          if [[ "${{ github.event.pull_request.head.ref }}" == "version-bump" ]]; then
+            TAG_VERSION=$(echo "$RELEASE_BRANCH" | cut -d'/' -f 2)
             TAG_VERSION="${TAG_VERSION}.0"
+          else
+            TAG_VERSION=$(echo "${{ github.event.pull_request.head.ref }}" | cut -d'/' -f 2)
           fi
 
           git tag -a $TAG_VERSION -m "$TAG_VERSION" origin/$RELEASE_BRANCH
           git push origin $TAG_VERSION --follow-tags
-          echo "path=$PATH" | tee -a "$GITHUB_OUTPUT"
+          echo "path=$LC_PATH" | tee -a "$GITHUB_OUTPUT"
           echo "tag-version=$TAG_VERSION" | tee -a "$GITHUB_OUTPUT"
           echo "RELEASE_BRANCH=$RELEASE_BRANCH" | tee -a "$GITHUB_ENV"
 
@@ -46,21 +49,22 @@ jobs:
         id: get-latest-release
         run: |
           if [[ "${{ github.event.pull_request.head.ref }}" == "version-bump" ]]; then
-            REGEX=${{ env.PATH }}
-            LATEST_RELEASE=$(gh release list --repo $GITHUB_REPOSITORY --limit 100 | grep -Ei "$REGEX" | head -n 1 | awk '{ print $1 }')
+            LATEST_RELEASE=$(gh release list --repo ${{ github.repository }} --limit 100 | grep -Ei "${{ env.LC_PATH }}" | head -n 1 | awk '{ print $1 }')
 
             if [ -z "$LATEST_RELEASE" ]; then
-              LATEST_RELEASE=$(git rev-list --max-parents=0 ${{ github.event.repository.default_branch }})
+              LATEST_RELEASE=$(git rev-list --max-parents=0 HEAD)
               echo "The first commit on branch ${{ env.RELEASE_BRANCH }} is $LATEST_RELEASE"
             else
               echo "Found release: $LATEST_RELEASE"
             fi
 
           else
-            LATEST_RELEASE=$${{ steps.get-version.outputs.tag-version }}
+            LATEST_RELEASE=${{ steps.get-version.outputs.tag-version }}
             echo "Found release: $LATEST_RELEASE"
           fi
           echo "latest_release=$LATEST_RELEASE" | tee -a "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: Build Changelog
         id: github_release
@@ -76,6 +80,6 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           body: ${{ steps.github_release.outputs.changelog }}
-          tag: ${{ steps.get-version.outputs.version }}
+          tag: ${{ steps.get-version.outputs.tag-version }}
           commit: ${{ env.RELEASE_BRANCH }}
           allowUpdates: true
