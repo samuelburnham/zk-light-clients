@@ -37,13 +37,15 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      #- name: Git config
-      #  run: |
-      #    git config --global user.name "argument-ci[bot]"
-      #    git config --global user.email "argument-ci[bot]@users.noreply.github.com"
+      - name: Git config
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@master
@@ -73,6 +75,8 @@ jobs:
           if [[ "${{ inputs.type }}" == "release" ]]; then
             git checkout -b $BASE_BRANCH
             git push origin $BASE_BRANCH
+          else
+            git checkout $BASE_BRANCH
           fi
 
           echo "BASE_VERSION=$BASE_VERSION" | tee -a $GITHUB_ENV
@@ -80,7 +84,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
 
-      - name: Create `version-bump` branch
+      - name: Create PR branch
         run: |
           if [[ "${{ inputs.type }}" == "hotfix" ]]; then
             VERSION=${{ inputs.version }}
@@ -88,6 +92,8 @@ jobs:
           else
             VERSION=$BASE_VERSION
             PR_BRANCH="version-bump"
+          fi
+
           git checkout -b $PR_BRANCH
 
           echo "VERSION=$VERSION" | tee -a $GITHUB_ENV
@@ -160,9 +166,9 @@ jobs:
 
       # Note: Can't use `peter-evans/create-pull-request` because for hotfixes we need to make the PR with an existing branch
       # The former always creates a new one for single-commit PRs, thus overwriting the actual hotfix
-      - name: Create PR description
+      - name: Create PR
         run: |
-          PR_BODY=$(cat <<EOF
+          cat << 'EOF' > body.md
           This is an automated release PR for version `${{ env.VERSION }}` of the ${{ inputs.light-client }} light client.
 
           Please update the Sphinx dependency versions to the appropriate release tag manually. (TODO: Automate)
@@ -171,19 +177,7 @@ jobs:
 
           [Workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
           EOF
-          )
-          echo "PR_DESCRIPTION=$PR_DESCRIPTION" >> $GITHUB_ENV
 
-      - name: Create Pull Request
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{ secrets.REPO_TOKEN }}
-          script: |
-            github.pulls.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: "${{ env.PR_TITLE }}",
-              head: "${{ env.PR_BRANCH }}",
-              base: "${{ env.BASE_BRANCH }}",
-              body: "${{ env.PR_DESCRIPTION }}",
-            })
+          gh pr create --title "${{ env.PR_TITLE }}" --body-file ./body.md --head ${{ env.PR_BRANCH }} --base ${{ env.BASE_BRANCH }}
+        env:
+          GH_TOKEN: ${{ secrets.REPO_TOKEN }}
