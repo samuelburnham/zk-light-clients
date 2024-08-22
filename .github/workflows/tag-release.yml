@@ -28,12 +28,19 @@ jobs:
         id: get-version
         run: |
           RELEASE_BRANCH=${{ github.event.pull_request.base.ref }}
-          TAG_VERSION=$(echo "$RELEASE_BRANCH | cut -d'/' -f 2)
+          TAG_VERSION=$(echo "$RELEASE_BRANCH" | cut -d'/' -f 2)
           PATH=$(echo "$RELEASE_BRANCH" | awk -F'/' '{split($2, arr, "-"); print arr[1]}')
+
+          echo $TAG_VERSION
+          echo $PATH
 
           if [[ "${{ startsWith(github.event.pull_request.head.ref, 'version-bump') }}" == "true" ]]; then
             TAG_VERSION="${TAG_VERSION}.0"
           fi
+
+          echo $TAG_VERSION
+          echo "Made it"
+          git --version
 
           git tag -a $TAG_VERSION -m "$TAG_VERSION" origin/$RELEASE_BRANCH
           git push origin $TAG_VERSION --follow-tags
