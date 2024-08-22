@@ -28,8 +28,8 @@ jobs:
         id: get-version
         run: |
           RELEASE_BRANCH=${{ github.event.pull_request.base.ref }}
-          TAG_VERSION=$(echo "$RELEASE_BRANCH | cut -d'/' -f 2)
-          PATH=$(echo "$RELEASE_BRANCH" | awk -F'/' '{split($2, arr, "-"); print arr[1]}')
+          TAG_VERSION=$(echo "$RELEASE_BRANCH" | cut -d'/' -f 2)
+          LC_PATH=$(echo "$RELEASE_BRANCH" | awk -F'/' '{split($2, arr, "-"); print arr[1]}')
 
           if [[ "${{ startsWith(github.event.pull_request.head.ref, 'version-bump') }}" == "true" ]]; then
             TAG_VERSION="${TAG_VERSION}.0"
@@ -47,10 +47,10 @@ jobs:
         run: |
           if [[ "${{ github.event.pull_request.head.ref }}" == "version-bump" ]]; then
             REGEX=${{ env.PATH }}
-            LATEST_RELEASE=$(gh release list --repo $GITHUB_REPOSITORY --limit 100 | grep -Ei "$REGEX" | head -n 1 | awk '{ print $1 }')
+            LATEST_RELEASE=$(gh release list --repo ${{ github.repository }} --limit 100 | grep -Ei "$REGEX" | head -n 1 | awk '{ print $1 }')
 
             if [ -z "$LATEST_RELEASE" ]; then
-              LATEST_RELEASE=$(git rev-list --max-parents=0 ${{ github.event.repository.default_branch }})
+              LATEST_RELEASE=$(git rev-list --max-parents=0 dev)
               echo "The first commit on branch ${{ env.RELEASE_BRANCH }} is $LATEST_RELEASE"
             else
               echo "Found release: $LATEST_RELEASE"
@@ -61,6 +61,8 @@ jobs:
             echo "Found release: $LATEST_RELEASE"
           fi
           echo "latest_release=$LATEST_RELEASE" | tee -a "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: Build Changelog
         id: github_release
