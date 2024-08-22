@@ -37,10 +37,10 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - name: Git config
-        run: |
-          git config --global user.name "argument-ci[bot]"
-          git config --global user.email "argument-ci[bot]@users.noreply.github.com"
+      #- name: Git config
+      #  run: |
+      #    git config --global user.name "argument-ci[bot]"
+      #    git config --global user.email "argument-ci[bot]@users.noreply.github.com"
 
       - name: Checkout code
         uses: actions/checkout@v4
@@ -53,11 +53,11 @@ jobs:
       - name: Install `tq-rs`
         run: cargo install tq-rs
 
-      - uses: tibdex/github-app-token@v2
-        id: generate-token
-        with:
-          app_id: ${{ secrets.TOKEN_APP_ID }}
-          private_key: ${{ secrets.TOKEN_APP_PRIVATE_KEY }}
+          #- uses: tibdex/github-app-token@v2
+          #  id: generate-token
+          #  with:
+          #    app_id: ${{ secrets.TOKEN_APP_ID }}
+          #    private_key: ${{ secrets.TOKEN_APP_PRIVATE_KEY }}
 
       # The `release/<aptos|ethereum|kadena>-v1.0` branch is always truncated, as we don't want to change
       # the release branch name for patch versions
@@ -78,7 +78,7 @@ jobs:
           echo "BASE_VERSION=$BASE_VERSION" | tee -a $GITHUB_ENV
           echo "BASE_BRANCH=$BASE_BRANCH" | tee -a $GITHUB_ENV
         env:
-          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
+          GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
 
       - name: Create `version-bump` branch
         run: |
@@ -94,7 +94,7 @@ jobs:
           echo "PR_BRANCH=$PR_BRANCH" | tee -a $GITHUB_ENV
           echo "PR_TITLE=chore(${{ inputs.light-client }}): Release $VERSION" | tee -a $GITHUB_ENV
         env:
-          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
+          GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
 
       # Regex from https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
       - name: Validate version
@@ -156,7 +156,7 @@ jobs:
           git commit -m "${{ env.PR_TITLE }}"
           git push origin ${{ env.PR_BRANCH }}
         env:
-          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
+          GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
 
       # Note: Can't use `peter-evans/create-pull-request` because for hotfixes we need to make the PR with an existing branch
       # The former always creates a new one for single-commit PRs, thus overwriting the actual hotfix
@@ -177,7 +177,7 @@ jobs:
       - name: Create Pull Request
         uses: actions/github-script@v6
         with:
-          github-token: ${{ steps.generate-token.outputs.token }}
+          github-token: ${{ secrets.REPO_TOKEN }}
           script: |
             github.pulls.create({
               owner: context.repo.owner,
