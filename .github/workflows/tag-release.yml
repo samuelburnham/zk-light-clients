@@ -48,7 +48,7 @@ jobs:
       - name: Get latest release reference
         id: get-latest-release
         run: |
-          if [[ "${{ github.event.pull_request.head.ref }}" == "version-bump" ]]; then
+          #if [[ "${{ github.event.pull_request.head.ref }}" == "version-bump" ]]; then
             LATEST_RELEASE=$(gh release list --repo ${{ github.repository }} --limit 100 | grep -Ei "${{ env.LC_PATH }}" | head -n 1 | awk '{ print $1 }')
 
             if [ -z "$LATEST_RELEASE" ]; then
@@ -58,10 +58,10 @@ jobs:
               echo "Found release: $LATEST_RELEASE"
             fi
 
-          else
-            LATEST_RELEASE=${{ steps.get-version.outputs.tag-version }}
-            echo "Found release: $LATEST_RELEASE"
-          fi
+            #else
+            #  LATEST_RELEASE=${{ steps.get-version.outputs.tag-version }}
+            #  echo "Found release: $LATEST_RELEASE"
+            #fi
           echo "latest_release=$LATEST_RELEASE" | tee -a "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ github.token }}
