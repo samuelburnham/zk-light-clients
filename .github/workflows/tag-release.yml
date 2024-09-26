@@ -6,12 +6,28 @@ on:
     types: [ closed ]
     branches:
       - release/*
+  workflow_dispatch:
+    inputs:
+      light-client:
+        description: 'Light client to release'
+        type: 'string'
+        required: true
+      release-branch:
+        description: 'Branch to release'
+        type: 'string'
+        required: true
+      version:
+        description: 'SemVer release version, e.g. `1.0.0`'
+        type: 'string'
+        required: true
 
 jobs:
   tag-bump:
     if: |
-      github.event.pull_request.merged == true &&
-      (startsWith(github.event.pull_request.head.ref, 'release-pr') || startsWith(github.event.pull_request.head.ref, 'patch/'))
+      (github.event.pull_request.merged == true &&
+      (startsWith(github.event.pull_request.head.ref, 'release-pr' ||
+      startsWith(github.event.pull_request.head.ref, 'patch/'))) ||
+      github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     steps:
       - name: Git config
@@ -27,9 +43,7 @@ jobs:
           repository: argumentcomputer/ci-workflows
           path: ci-workflows
           ref: release-workflow
-      - name: Get light client prefix from branch
-        run: |
-          echo "TAG_PREFIX=$(echo ${{ github.event.pull_request.base.ref }} | awk -F'[/\-]' '{ print $2 }')" | tee -a $GITHUB_ENV
+      # TODO: Refine changelog categories
       - name: Create changelog config
         run: |
           cat << 'EOF' > config.json
@@ -55,6 +69,23 @@ jobs:
             ]
           }
           EOF
+      - name: Get branch and version info
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            RELEASE_BRANCH=${{ github.event.pull_request.base.ref }}
+            # Get tag and version from PR title
+            TAG=$(echo '${{ github.event.pull_request.title }}' | awk '/Release/ {print $NF}' | tr -d '`')
+            LIGHT_CLIENT=${TAG%%-v*}
+            VERSION="${TAG#*-v}"
+          else
+            LIGHT_CLIENT=${{ inputs.light-client }}
+            RELEASE_BRANCH=${{ inputs.release-branch }}
+            VERSION=${{ inputs.version }}
+          fi
+
+          echo "LIGHT_CLIENT=$LIGHT_CLIENT" | tee -a $GITHUB_ENV
+          echo "RELEASE_BRANCH=$RELEASE_BRANCH" | tee -a $GITHUB_ENV
+          echo "VERSION=$VERSION" | tee -a $GITHUB_ENV
      # - uses: tibdex/github-app-token@v2
      #   id: generate-token
      #   with:
@@ -63,5 +94,7 @@ jobs:
       - name: Publish release
         uses: ./ci-workflows/.github/actions/tag-release
         with:
-          tag-prefix: ${{ env.TAG_PREFIX }}
+          release-branch: ${{ env.RELEASE_BRANCH }}
+          version: ${{ env.VERSION }}
+          tag-prefix: ${{ env.LIGHT_CLIENT }}
           changelog-config-file: ./config.json
