@@ -25,9 +25,9 @@ jobs:
   tag-bump:
     if: |
       (github.event.pull_request.merged == true &&
-      (startsWith(github.event.pull_request.head.ref, 'release-pr' ||
+      (startsWith(github.event.pull_request.head.ref, 'release-pr') ||
       startsWith(github.event.pull_request.head.ref, 'patch/'))) ||
-      github.event_name == 'workflow_dispatch')
+      github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - name: Git config
