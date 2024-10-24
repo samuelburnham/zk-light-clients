@@ -14,10 +14,17 @@ jobs:
       - uses: taiki-e/install-action@mdbook
       - run: mdbook build
         working-directory: ${{ github.workspace }}/aptos/docs
+      - run: mdbook build
+        working-directory: ${{ github.workspace }}/ethereum/docs
+      - run: |
+          mkdir -p public
+          cp aptos/docs/book/* public/aptos
+          cp ethereum/docs/book/* public/ethereum
+        working-directory: ${{ github.workspace }}
       - name: Upload build artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./aptos/docs/book
+          path: ./public
           retention-days: 1
 
   deploy:
