@@ -71,6 +71,8 @@ jobs:
           path: ./public
       - run: |
           ls public
+          ls public/aptos
+          ls public/ethereum
       - name: Deploy mdbook
         uses: peaceiris/actions-gh-pages@v4
         with:
