@@ -63,7 +63,9 @@ jobs:
       contents: write
     steps:
       - name: Create publish dir
-        run: mkdir -p public
+        run: |
+          mkdir -p public
+          ls public
         working-directory: ${{ github.workspace }}
       - name: Download book artifacts
         uses: actions/download-artifact@v4
