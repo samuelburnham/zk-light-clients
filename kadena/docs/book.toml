@@ -14,3 +14,5 @@ mathjax-support = true
 [output.html.fold]
 enable = true
 level = 1
+
+site-url = "/kadena/"
