@@ -65,16 +65,19 @@ jobs:
         # e.g. ['aptos', 'ethereum', 'kadena'] if the `aptos`, `ethereum` and `kadena` mdbooks contain changes.
         light-client: ${{ fromJSON(needs.changes.outputs.books) }}
     permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      #url: ${{ steps.deployment.outputs.page_url }}/${{ matrix.light-client }}
-      url: ${{ steps.deployment.outputs.page_url }}
+      contents: write
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Create publish dir
+        run: mkdir -p public
+        working-directory: ${{ github.workspace }}
+      - name: Download `${{ matrix.light-client }}` book artifact
+        uses: actions/download-artifact@v4
         with:
-          artifact_name: ${{ matrix.light-client }}
-
+          name: ${{ matrix.light-client }}
+          path: ./public
+      - name: Deploy mdbook
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public/${{ matrix.light-client }}
+          destination_dir: ${{ matrix.light-client }}
