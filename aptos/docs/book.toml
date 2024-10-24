@@ -6,11 +6,10 @@ src = "src"
 title = "Aptos Light Client"
 description = "A book about the Aptos ZK Light Client"
 
-#[preprocessor.external-links]
+[preprocessor.external-links]
 
 [output.html]
 mathjax-support = true
-#site-url = "/aptos/"
 
 [output.html.fold]
 enable = true
