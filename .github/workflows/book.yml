@@ -17,7 +17,7 @@ jobs:
       - run: mdbook build
         working-directory: ${{ github.workspace }}/ethereum/docs
       - run: |
-          mkdir -p public
+          mkdir -p public/aptos public/ethereum
           cp aptos/docs/book/* public/aptos
           cp ethereum/docs/book/* public/ethereum
         working-directory: ${{ github.workspace }}
