@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       # List of changed mdbooks
-      books: ${{ steps.get-packages.outputs.packages }}
+      books: ${{ steps.get-packages.outputs.books }}
       aptos: ${{ steps.filter.outputs.aptos }}
       ethereum: ${{ steps.filter.outputs.ethereum }}
       kadena: ${{ steps.filter.outputs.kadena }}
@@ -36,8 +36,8 @@ jobs:
 
   build:
     needs: changes
+    if: ${{ needs.changes.outputs.books != '[]' && needs.changes.outputs.books != '' }}
     runs-on: ubuntu-latest
-    if: ${{ needs.changes.outputs.lc-packages != '[]' && needs.changes.outputs.packages != '' }}
     strategy:
       fail-fast: false
       matrix:
@@ -53,11 +53,14 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ${{ matrix.package }}/docs/book
+          name: ${{ matrix.light-client }}
+          path: ${{ matrix.light-client }}/docs/book
           retention-days: 1
 
   deploy:
+    needs: [changes, build]
     if: ${{ (github.ref_name == 'dev' && github.event_name == 'push') && (needs.changes.outputs.books != '[]' && needs.changes.outputs.books != '') }}
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -70,10 +73,10 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}/${{ matrix.light-client }}
-    runs-on: ubuntu-latest
-    needs: build
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          artifact_name: ${{ matrix.light-client }}
 
