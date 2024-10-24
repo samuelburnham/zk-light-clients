@@ -13,9 +13,6 @@ jobs:
     outputs:
       # List of changed mdbooks
       books: ${{ steps.get-packages.outputs.books }}
-      aptos: ${{ steps.filter.outputs.aptos }}
-      ethereum: ${{ steps.filter.outputs.ethereum }}
-      kadena: ${{ steps.filter.outputs.kadena }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -72,7 +69,8 @@ jobs:
       id-token: write
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}/${{ matrix.light-client }}
+      #url: ${{ steps.deployment.outputs.page_url }}/${{ matrix.light-client }}
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
