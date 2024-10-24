@@ -34,19 +34,22 @@ jobs:
   # TODO: Build all light clients always unless we can only deploy changed and keep old
   build:
     needs: changes
-    if: ${{ needs.changes.outputs.books != '[]' && needs.changes.outputs.books != '' }}
+      #if: ${{ needs.changes.outputs.books != '[]' && needs.changes.outputs.books != '' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         # Parse JSON array containing names of all changed light client mdbooks,
         # e.g. ['aptos', 'ethereum', 'kadena'] if the `aptos`, `ethereum` and `kadena` mdbooks contain changes.
-        light-client: ${{ fromJSON(needs.changes.outputs.books) }}
+        #light-client: ${{ fromJSON(needs.changes.outputs.books) }}
+        light-client: ['aptos', 'ethereum', 'kadena']
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - uses: taiki-e/install-action@mdbook
-      - run: mdbook build
+      - run: |
+          mdbook build
+          ls book
         working-directory: ${{ github.workspace }}/${{ matrix.light-client }}/docs
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
