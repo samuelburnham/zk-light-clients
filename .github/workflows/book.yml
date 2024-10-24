@@ -57,7 +57,7 @@ jobs:
 
   deploy:
     needs: [changes, build]
-    if: ${{ github.ref_name == 'dev' && github.event_name == 'push') }}
+    if: ${{ github.ref_name == 'dev' && github.event_name == 'push' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
