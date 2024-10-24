@@ -1,9 +1,17 @@
-name: Deploy mdBooks to GitHub Pages
+name: Deploy mdBook to GitHub Pages
 
 on:
+  # Always build & deploy on push to `dev`
   push:
     branches:
       - dev
+  pull_request:
+    branches: [dev]
+    # Only build if docs are changed
+    paths:
+      - "aptos/docs/**"
+      - "ethereum/docs/**"
+      - "kadena/docs/**"
 
 jobs:
   build:
