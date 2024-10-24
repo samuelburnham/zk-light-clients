@@ -75,9 +75,11 @@ jobs:
         with:
           name: ${{ matrix.light-client }}
           path: ./public
+      - run: |
+          ls public
       - name: Deploy mdbook
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public
+          publish_dir: ./public/${{ matrix.light-client }}
           destination_dir: ${{ matrix.light-client }}
