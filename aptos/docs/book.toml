@@ -10,7 +10,7 @@ description = "A book about the Aptos ZK Light Client"
 
 [output.html]
 mathjax-support = true
-site-url = "/aptos/"
+#site-url = "/aptos/"
 
 [output.html.fold]
 enable = true
