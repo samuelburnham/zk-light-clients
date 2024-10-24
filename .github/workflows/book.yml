@@ -65,6 +65,7 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v4
       - name: Create publish dir
         run: |
           mkdir -p public
