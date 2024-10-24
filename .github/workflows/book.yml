@@ -49,7 +49,7 @@ jobs:
       - run: mdbook build
         working-directory: ${{ github.workspace }}/${{ matrix.light-client }}/docs
       - name: Upload build artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.light-client }}
           path: ${{ matrix.light-client }}/docs/book
