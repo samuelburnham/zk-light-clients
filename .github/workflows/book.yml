@@ -75,9 +75,14 @@ jobs:
         with:
           path: ./public
       - run: |
+          echo "PUBLIC"
           ls public
+          echo "PUBLIC/APTOS"
           ls public/aptos
+          echo "PUBLIC/ETHEREUM"
           ls public/ethereum
+          echo "PUBLIC/KADENA"
+          ls public/kadena
       - name: Deploy mdbook
         uses: peaceiris/actions-gh-pages@v4
         with:

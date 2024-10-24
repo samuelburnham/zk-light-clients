@@ -6,7 +6,7 @@ src = "src"
 title = "Ethereum Light Client"
 description = "A book about the Ethereum ZK Light Client"
 
-[preprocessor.external-links]
+#[preprocessor.external-links]
 
 [output.html]
 mathjax-support = true

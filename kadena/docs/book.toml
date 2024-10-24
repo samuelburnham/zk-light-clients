@@ -6,7 +6,7 @@ src = "src"
 title = "Kadena Light Client"
 description = "A book about the Kadena ZK Light Client"
 
-[preprocessor.external-links]
+#[preprocessor.external-links]
 
 [output.html]
 mathjax-support = true
