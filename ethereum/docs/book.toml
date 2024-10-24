@@ -10,9 +10,9 @@ description = "A book about the Ethereum ZK Light Client"
 
 [output.html]
 mathjax-support = true
+site-url = "/ethereum/"
 
 [output.html.fold]
 enable = true
 level = 1
 
-site-url = "/ethereum/"

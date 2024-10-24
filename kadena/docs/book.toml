@@ -10,9 +10,9 @@ description = "A book about the Kadena ZK Light Client"
 
 [output.html]
 mathjax-support = true
+site-url = "/kadena/"
 
 [output.html.fold]
 enable = true
 level = 1
 
-site-url = "/kadena/"
