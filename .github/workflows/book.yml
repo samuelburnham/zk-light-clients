@@ -36,6 +36,7 @@ jobs:
           cat <<EOF > ./public/index.html
           <!DOCTYPE html>
           <html lang="en">
+
           <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -44,25 +45,36 @@ jobs:
               body {
                 display: flex;
                 justify-content: center;
-                align-items: center;
+                align-items: baseline;
                 min-height: 100vh;
                 margin: 0;
+                font-family: sans-serif;
+                background-color: #f0f0f0;
               }
-              main {
-                text-align: center;
+
+              h1 {
+                font-size: 3rem;
+                margin-bottom: 1rem;
+              }
+
+              li {
+                font-size: 2rem;
+                margin: 0.5rem 0;
               }
             </style>
           </head>
+
           <body>
             <main class="mdbook">
               <h1>ZK Light Clients</h1>
               <ul>
                 <li><a href="./aptos/">Aptos</a></li>
                 <li><a href="./ethereum/">Ethereum</a></li>
-                <li><a href="./kadena/">Ethereum</a></li>
+                <li><a href="./kadena/">Kadena</a></li>
               </ul>
             </main>
           </body>
+
           </html>
           EOF
         working-directory: ${{ github.workspace }}
@@ -86,86 +98,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-  # Detect changes in each subcrate
-#  changes:
-#    runs-on: ubuntu-latest
-#    outputs:
-#      # List of changed mdbooks
-#      books: ${{ steps.get-packages.outputs.books }}
-#    steps:
-#      - uses: actions/checkout@v4
-#      - uses: dorny/paths-filter@v3
-#        id: filter
-#        with:
-#          filters: |
-#            aptos:
-#              - 'aptos/docs/**'
-#            ethereum:
-#              - 'ethereum/docs/**'
-#            kadena:
-#              - 'kadena/docs/**'
-#      - name: Get list of changed packages
-#        id: get-packages
-#        run: |
-#          BOOKS=$(echo '${{ steps.filter.outputs.changes }}' | jq -c '.')
-#          echo "books=$BOOKS" | tee -a "$GITHUB_OUTPUT"
-#
-#  # TODO: Build all light clients always unless we can only deploy changed and keep old
-#  build:
-#    needs: changes
-#      #if: ${{ needs.changes.outputs.books != '[]' && needs.changes.outputs.books != '' }}
-#    runs-on: ubuntu-latest
-#    strategy:
-#      fail-fast: false
-#      matrix:
-#        # Parse JSON array containing names of all changed light client mdbooks,
-#        # e.g. ['aptos', 'ethereum', 'kadena'] if the `aptos`, `ethereum` and `kadena` mdbooks contain changes.
-#        #light-client: ${{ fromJSON(needs.changes.outputs.books) }}
-#        light-client: ['aptos', 'ethereum', 'kadena']
-#    steps:
-#      - uses: actions/checkout@v4
-#      - uses: dtolnay/rust-toolchain@stable
-#      - uses: taiki-e/install-action@mdbook
-#      - run: |
-#          mdbook build
-#          ls book
-#        working-directory: ${{ github.workspace }}/${{ matrix.light-client }}/docs
-#      - name: Upload build artifact
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: ${{ matrix.light-client }}
-#          path: ${{ matrix.light-client }}/docs/book
-#          retention-days: 1
-#
-#  deploy:
-#    needs: [changes, build]
-#    if: ${{ github.ref_name == 'dev' && github.event_name == 'push' }}
-#    runs-on: ubuntu-latest
-#    permissions:
-#      contents: write
-#    steps:
-#      - uses: actions/checkout@v4
-#      - name: Create publish dir
-#        run: |
-#          mkdir -p public
-#          ls public
-#        working-directory: ${{ github.workspace }}
-#      - name: Download book artifacts
-#        uses: actions/download-artifact@v4
-#        with:
-#          path: ./public
-#      - run: |
-#          echo "PUBLIC"
-#          ls public
-#          echo "PUBLIC/APTOS"
-#          ls public/aptos
-#          echo "PUBLIC/ETHEREUM"
-#          ls public/ethereum
-#          echo "PUBLIC/KADENA"
-#          ls public/kadena
-#      - name: Deploy mdbook
-#        uses: peaceiris/actions-gh-pages@v4
-#        with:
-#          github_token: ${{ secrets.GITHUB_TOKEN }}
-#          publish_dir: ./public
-#
