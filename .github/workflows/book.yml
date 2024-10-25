@@ -41,6 +41,38 @@ jobs:
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>ZK Light Clients</title>
             <link rel="stylesheet" href="./aptos/theme/css/light.css">
+            <style>
+              body {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+                margin: 0;
+                background-color: #f8f9fa;
+              }
+              main {
+                text-align: center;
+              }
+              h1 {
+                margin-bottom: 1rem;
+                font-size: 2rem;
+              }
+              ul {
+                list-style: none;
+                padding: 0;
+              }
+              li {
+                margin: 0.5rem 0;
+              }
+              a {
+                text-decoration: none;
+                color: #007bff;
+                font-weight: bold;
+              }
+              a:hover {
+                text-decoration: underline;
+              }
+            </style>
           </head>
           <body>
             <main class="mdbook">
