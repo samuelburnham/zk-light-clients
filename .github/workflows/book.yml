@@ -20,6 +20,28 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - uses: taiki-e/install-action@mdbook
+      - name: Create base page
+        run: |
+          mkdir -p public
+          cat <<EOF > ./public/index.html
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>ZK Light Clients</title>
+          </head>
+          <body>
+            <h1>Welcome to the ZK Light Clients homepage. Documentation for each light client can be found at the following links</h1>
+            <ul>
+              <li><a href="./aptos/">Aptos</a></li>
+              <li><a href="./ethereum/">Ethereum</a></li>
+              <li><a href="./kadena/">Ethereum</a></li>
+            </ul>
+          </body>
+          </html>
+          EOF
+        working-directory: ${{ github.workspace }}
       - name: Build mdbook
         run: |
           for book in aptos ethereum kadena; do
@@ -30,6 +52,7 @@ jobs:
             cp -r book/* ${{ github.workspace }}/public/${book}
             cd ${{ github.workspace }}
           done
+        working-directory: ${{ github.workspace }}
       - name: Upload build artifact
         uses: actions/upload-pages-artifact@v3
         with:
