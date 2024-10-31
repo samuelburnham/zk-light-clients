@@ -1,0 +1,32 @@
+name: Matrix Test
+
+on:
+  push:
+    branches:
+      - "ci-matrix"
+
+jobs:
+  matrix-test:
+    name: Light client bench (scheduled)
+    #if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        light-client: [ aptos, ethereum, kadena ]
+        include:
+          - benchmark: inclusion
+            light-client: aptos
+          - benchmark: epoch_change
+            light-client: aptos
+          - benchmark: inclusion
+            light-client: ethereum
+          - benchmark: committee_change
+            light-client: ethereum
+          - benchmark: spv
+            light-client: kadena
+          - benchmark: longest_chain
+            light-client: kadena
+    steps:
+      - run: |
+          echo "${{ matrix.light-client }} ${{ matrix.benchmark }} benchmark"
