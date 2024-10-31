@@ -13,20 +13,20 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        light-client: [ aptos, ethereum, kadena ]
+        #light-client: [ aptos, ethereum, kadena ]
         include:
-          - benchmark: inclusion
-            light-client: aptos
-          - benchmark: epoch_change
-            light-client: aptos
-          - benchmark: inclusion
-            light-client: ethereum
-          - benchmark: committee_change
-            light-client: ethereum
-          - benchmark: spv
-            light-client: kadena
-          - benchmark: longest_chain
-            light-client: kadena
+          - light-client: aptos
+            benchmark: inclusion
+          - light-client: aptos
+            benchmark: epoch_change
+          - light-client: ethereum
+            benchmark: inclusion
+          - light-client: ethereum
+            benchmark: committee_change
+          - light-client: kadena
+            benchmark: spv
+          - light-client: kadena
+            benchmark: longest_chain
     steps:
       - run: |
           echo "${{ matrix.light-client }} ${{ matrix.benchmark }} benchmark"
